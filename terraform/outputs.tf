@@ -17,18 +17,8 @@ output "jenkins_url" {
   value = "http://${aws_eip.static["jenkins"].public_ip}:8080"
 }
 
-output "jenkins_controller_instance_id" {
+output "jenkins_instance_id" {
   value = aws_instance.jenkins.id
-}
-
-output "jenkins_agent_private_ip" {
-  value = aws_instance.agent.private_ip
-}
-
-output "jenkins_agent_private_key" {
-  description = "Add as a Jenkins SSH credential: terraform output -raw jenkins_agent_private_key"
-  value       = tls_private_key.agent.private_key_openssh
-  sensitive   = true
 }
 
 output "ecr_repositories" {

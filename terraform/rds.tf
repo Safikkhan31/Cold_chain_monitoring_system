@@ -22,7 +22,7 @@ resource "aws_db_instance" "main" {
   publicly_accessible    = false
   multi_az               = false # set true for production
 
-  backup_retention_period    = 7
+  backup_retention_period    = var.db_backup_retention_days
   auto_minor_version_upgrade = true
 
   # Convenient for a student project. For production: deletion_protection = true, skip_final_snapshot = false.

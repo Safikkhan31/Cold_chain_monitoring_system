@@ -4,8 +4,37 @@ exec > >(tee /var/log/jenkins-bootstrap.log) 2>&1
 
 for i in $(seq 1 40); do curl -s -m 3 -o /dev/null https://checkip.amazonaws.com && break; sleep 5; done
 
-dnf install -y java-17-amazon-corretto-headless git
+# 2 GB swap: t3.micro has only 1 GB of RAM
+if ! swapon --show | grep -q /swapfile; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
+dnf install -y java-21-amazon-corretto-headless fontconfig git docker jq
+systemctl enable --now docker
+
 curl -fsSL -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
 dnf install -y jenkins
+usermod -aG docker jenkins
+
+# Values the Jenkinsfile reads
+mkdir -p /etc/coldchain
+cat > /etc/coldchain/env <<'ENVEOF'
+PROJECT=${project}
+AWS_REGION=${region}
+AWS_DEFAULT_REGION=${region}
+REGISTRY=${registry}
+DB_HOST=${db_host}
+DB_NAME=${db_name}
+DB_SECRET_ARN=${db_secret_arn}
+BACKEND_ID=${backend_id}
+FRONTEND_ID=${frontend_id}
+INGEST_ID=${ingest_id}
+ENVEOF
+chmod 644 /etc/coldchain/env
+
 systemctl enable --now jenkins

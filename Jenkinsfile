@@ -1,9 +1,9 @@
 // CI/CD: build the three images, push them to ECR, apply the DB schema, then roll out to the servers.
-// Runs on the Jenkins agent (label "docker"). The agent's IAM role is limited to ECR push, SSM deploy on
-// the three app servers, and reading the DB secret. Region, registry and instance IDs come from
-// /etc/coldchain/env, which Terraform writes on the agent.
+// Runs on the Jenkins server itself. Its IAM role is limited to ECR push, SSM deploy on the three app
+// servers, and reading the DB secret. Region, registry and instance IDs come from /etc/coldchain/env,
+// which Terraform writes on the Jenkins server.
 pipeline {
-  agent { label 'docker' }
+  agent any
 
   options {
     timestamps()

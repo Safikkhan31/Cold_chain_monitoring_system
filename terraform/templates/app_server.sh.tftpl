@@ -5,6 +5,15 @@ exec > >(tee /var/log/coldchain-bootstrap.log) 2>&1
 # Wait for outbound internet (the public IP or NAT can attach a few seconds after boot)
 for i in $(seq 1 40); do curl -s -m 3 -o /dev/null https://checkip.amazonaws.com && break; sleep 5; done
 
+# 2 GB swap: t3.micro has only 1 GB of RAM
+if ! swapon --show | grep -q /swapfile; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 dnf install -y docker jq
 systemctl enable --now docker
 

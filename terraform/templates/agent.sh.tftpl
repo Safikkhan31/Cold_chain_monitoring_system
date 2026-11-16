@@ -4,6 +4,15 @@ exec > >(tee /var/log/agent-bootstrap.log) 2>&1
 
 for i in $(seq 1 40); do curl -s -m 3 -o /dev/null https://checkip.amazonaws.com && break; sleep 5; done
 
+# 2 GB swap: t3.micro has only 1 GB of RAM
+if ! swapon --show | grep -q /swapfile; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 dnf install -y java-17-amazon-corretto-headless git docker jq
 systemctl enable --now docker
 

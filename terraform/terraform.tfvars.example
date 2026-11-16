@@ -2,6 +2,9 @@
 admin_cidrs = ["203.0.113.10/32"] # your public IP (search "what is my ip")
 
 # Optional
+# Free-tier friendly defaults are already set: t3.micro servers, db.t4g.micro, backups off.
+# instance_type_app = "t3.micro"
+# db_backup_retention_days = 0   # free-tier accounts only allow 0; use 7 on a paid account
 # region        = "ap-south-1"
 # device_cidrs  = ["0.0.0.0/0"]   # narrow if your boxes have fixed IPs
 # webhook_cidrs = []               # GitHub webhook ranges, or leave empty and use SCM polling

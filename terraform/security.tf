@@ -26,13 +26,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_security_group" "jenkins" {
   name        = "${var.project}-jenkins"
-  description = "Jenkins controller"
-  vpc_id      = aws_vpc.main.id
-}
-
-resource "aws_security_group" "agent" {
-  name        = "${var.project}-jenkins-agent"
-  description = "Jenkins build agent (private)"
+  description = "Jenkins (controller and builds)"
   vpc_id      = aws_vpc.main.id
 }
 
@@ -69,7 +63,7 @@ resource "aws_vpc_security_group_ingress_rule" "rds_from_clients" {
   for_each = {
     backend = aws_security_group.backend.id
     ingest  = aws_security_group.ingest.id
-    agent   = aws_security_group.agent.id
+    jenkins = aws_security_group.jenkins.id
   }
   security_group_id            = aws_security_group.rds.id
   description                  = "PostgreSQL from ${each.key}"
@@ -99,15 +93,6 @@ resource "aws_vpc_security_group_ingress_rule" "jenkins_webhook" {
   cidr_ipv4         = each.value
 }
 
-resource "aws_vpc_security_group_ingress_rule" "agent_ssh_from_jenkins" {
-  security_group_id            = aws_security_group.agent.id
-  description                  = "Controller connects to agent over SSH"
-  ip_protocol                  = "tcp"
-  from_port                    = 22
-  to_port                      = 22
-  referenced_security_group_id = aws_security_group.jenkins.id
-}
-
 # ---------- Outbound ----------
 # HTTPS out for package installs, ECR, Secrets Manager, SSM and GitHub. RDS and Docker Hub use 5432/443.
 resource "aws_vpc_security_group_egress_rule" "https_out" {
@@ -116,7 +101,6 @@ resource "aws_vpc_security_group_egress_rule" "https_out" {
     backend  = aws_security_group.backend.id
     ingest   = aws_security_group.ingest.id
     jenkins  = aws_security_group.jenkins.id
-    agent    = aws_security_group.agent.id
   }
   security_group_id = each.value
   description       = "HTTPS out"
@@ -139,7 +123,7 @@ resource "aws_vpc_security_group_egress_rule" "to_rds" {
   for_each = {
     backend = aws_security_group.backend.id
     ingest  = aws_security_group.ingest.id
-    agent   = aws_security_group.agent.id
+    jenkins = aws_security_group.jenkins.id
   }
   security_group_id            = each.value
   description                  = "PostgreSQL"
@@ -149,11 +133,3 @@ resource "aws_vpc_security_group_egress_rule" "to_rds" {
   referenced_security_group_id = aws_security_group.rds.id
 }
 
-resource "aws_vpc_security_group_egress_rule" "jenkins_to_agent" {
-  security_group_id            = aws_security_group.jenkins.id
-  description                  = "SSH to build agent"
-  ip_protocol                  = "tcp"
-  from_port                    = 22
-  to_port                      = 22
-  referenced_security_group_id = aws_security_group.agent.id
-}

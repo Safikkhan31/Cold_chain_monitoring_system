@@ -35,19 +35,18 @@ variable "webhook_cidrs" {
   default     = []
 }
 
+# Free-tier friendly defaults. To list the types your account/region allows:
+#   aws ec2 describe-instance-types --filters Name=free-tier-eligible,Values=true \
+#     --query "InstanceTypes[*].InstanceType" --output text --region <region>
 variable "instance_type_app" {
   type    = string
-  default = "t3.small"
+  default = "t3.micro"
 }
 
 variable "instance_type_jenkins" {
+  description = "Jenkins also runs the Docker builds. 1 GB RAM works with the swap file but builds are slow."
   type    = string
-  default = "t3.medium"
-}
-
-variable "instance_type_agent" {
-  type    = string
-  default = "t3.medium"
+  default = "t3.micro"
 }
 
 variable "db_instance_class" {
@@ -68,4 +67,10 @@ variable "db_name" {
 variable "db_username" {
   type    = string
   default = "coldchain"
+}
+
+variable "db_backup_retention_days" {
+  description = "Automated RDS backups. Free-tier accounts only allow 0 (off). Use 7 on a paid account."
+  type        = number
+  default     = 0
 }

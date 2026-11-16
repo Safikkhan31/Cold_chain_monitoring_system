@@ -74,7 +74,7 @@ resource "aws_instance" "app" {
   }
 }
 
-# ---------- Jenkins controller ----------
+# ---------- Jenkins (controller and build executor on one server) ----------
 resource "aws_instance" "jenkins" {
   ami                         = data.aws_ssm_parameter.al2023.value
   instance_type               = var.instance_type_jenkins
@@ -82,40 +82,7 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids      = [aws_security_group.jenkins.id]
   iam_instance_profile        = aws_iam_instance_profile.jenkins.name
   associate_public_ip_address = true
-  user_data                   = file("${path.module}/templates/jenkins.sh.tftpl")
-
-  metadata_options {
-    http_tokens                 = "required"
-    http_put_response_hop_limit = 1
-  }
-
-  root_block_device {
-    volume_type = "gp3"
-    volume_size = 30
-    encrypted   = true
-  }
-
-  tags = { Name = "${var.project}-jenkins", Role = "jenkins" }
-
-  lifecycle {
-    ignore_changes = [ami, user_data]
-  }
-}
-
-# ---------- Jenkins agent (private subnet) ----------
-resource "tls_private_key" "agent" {
-  algorithm = "ED25519"
-}
-
-resource "aws_instance" "agent" {
-  ami                    = data.aws_ssm_parameter.al2023.value
-  instance_type          = var.instance_type_agent
-  subnet_id              = aws_subnet.private[0].id
-  vpc_security_group_ids = [aws_security_group.agent.id]
-  iam_instance_profile   = aws_iam_instance_profile.agent.name
-
-  user_data = templatefile("${path.module}/templates/agent.sh.tftpl", {
-    public_key    = tls_private_key.agent.public_key_openssh
+  user_data = templatefile("${path.module}/templates/jenkins.sh.tftpl", {
     project       = var.project
     region        = var.region
     registry      = local.registry
@@ -138,7 +105,7 @@ resource "aws_instance" "agent" {
     encrypted   = true
   }
 
-  tags = { Name = "${var.project}-jenkins-agent", Role = "jenkins-agent" }
+  tags = { Name = "${var.project}-jenkins", Role = "jenkins" }
 
   lifecycle {
     ignore_changes = [ami, user_data]

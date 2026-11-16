@@ -62,24 +62,8 @@ resource "aws_iam_instance_profile" "server" {
   role     = aws_iam_role.server[each.key].name
 }
 
-# ---------- Jenkins controller: no AWS permissions except Session Manager access ----------
-resource "aws_iam_role" "jenkins" {
-  name               = "${var.project}-jenkins"
-  assume_role_policy = data.aws_iam_policy_document.ec2_assume.json
-}
-
-resource "aws_iam_role_policy_attachment" "jenkins_ssm" {
-  role       = aws_iam_role.jenkins.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "jenkins" {
-  name = "${var.project}-jenkins"
-  role = aws_iam_role.jenkins.name
-}
-
-# ---------- Jenkins agent: push images, trigger deploys on exactly these 3 servers, read the DB secret ----------
-data "aws_iam_policy_document" "agent" {
+# ---------- Jenkins (builds run on this same server): push images, trigger deploys on exactly these 3 servers, read the DB secret ----------
+data "aws_iam_policy_document" "jenkins" {
   statement {
     sid       = "EcrLogin"
     actions   = ["ecr:GetAuthorizationToken"]
@@ -117,23 +101,23 @@ data "aws_iam_policy_document" "agent" {
   }
 }
 
-resource "aws_iam_role" "agent" {
-  name               = "${var.project}-jenkins-agent"
+resource "aws_iam_role" "jenkins" {
+  name               = "${var.project}-jenkins"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume.json
 }
 
-resource "aws_iam_role_policy" "agent" {
+resource "aws_iam_role_policy" "jenkins" {
   name   = "least-privilege"
-  role   = aws_iam_role.agent.id
-  policy = data.aws_iam_policy_document.agent.json
+  role   = aws_iam_role.jenkins.id
+  policy = data.aws_iam_policy_document.jenkins.json
 }
 
-resource "aws_iam_role_policy_attachment" "agent_ssm" {
-  role       = aws_iam_role.agent.name
+resource "aws_iam_role_policy_attachment" "jenkins_ssm" {
+  role       = aws_iam_role.jenkins.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_iam_instance_profile" "agent" {
-  name = "${var.project}-jenkins-agent"
-  role = aws_iam_role.agent.name
+resource "aws_iam_instance_profile" "jenkins" {
+  name = "${var.project}-jenkins"
+  role = aws_iam_role.jenkins.name
 }
