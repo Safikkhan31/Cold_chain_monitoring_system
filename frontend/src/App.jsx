@@ -57,10 +57,15 @@ function BoxCard({ b, onDeliver }) {
       <Spark id={b.id} />
       <dl>
         <div><dt>Humidity</dt><dd>{f(b.hum_pct, 0)}%</dd></div>
-        <div><dt>Vibration</dt><dd>{f(b.vib_g, 2)} g</dd></div>
         <div><dt>Lid</dt><dd>{b.lid_open ? 'Open' : 'Closed'}</dd></div>
         <div><dt>Motion</dt><dd>{b.moving ? 'Moving' : 'Still'}</dd></div>
+        <div><dt>Speed</dt><dd>{f(b.speed_kmph, 0)} km/h</dd></div>
       </dl>
+      <p className="loc">
+        {b.lat != null
+          ? <a href={`https://www.openstreetmap.org/?mlat=${b.lat}&mlon=${b.lng}#map=15/${b.lat}/${b.lng}`} target="_blank" rel="noreferrer">Location: {f(b.lat, 5)}, {f(b.lng, 5)}</a>
+          : 'Location: no GPS fix yet'}
+      </p>
       <div className="budget">
         <div className="bar"><span style={{ width: `${used}%` }} /></div>
         <p>Time out of range: {Math.round(b.excursion_s / 60)} of {Math.round(b.max_excursion_s / 60)} min allowed</p>

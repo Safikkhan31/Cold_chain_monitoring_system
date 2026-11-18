@@ -38,6 +38,14 @@ CREATE TABLE IF NOT EXISTS readings (
 );
 CREATE INDEX IF NOT EXISTS idx_readings_box_time ON readings (box_id, recorded_at DESC);
 
+-- GPS, ultrasonic and light sensor fields (safe to re-run on an existing database)
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS lat          DOUBLE PRECISION;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS lng          DOUBLE PRECISION;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS speed_kmph   DOUBLE PRECISION;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS heading_deg  DOUBLE PRECISION;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS distance_cm  DOUBLE PRECISION;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS light_raw    INTEGER;
+
 -- Example profiles (verify against your vaccine's datasheet)
 INSERT INTO vaccine_profiles
  (name, min_temp_c, max_temp_c, critical_min_c, critical_max_c, max_excursion_s, max_humidity_pct, max_vib_g, max_shock_events, max_lid_open_s)

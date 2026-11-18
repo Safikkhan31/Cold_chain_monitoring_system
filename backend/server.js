@@ -16,6 +16,7 @@ SELECT b.id, b.name, b.destination, b.status, b.dispatched_at, b.delivered_at,
        p.name AS vaccine, p.min_temp_c, p.max_temp_c, p.critical_min_c, p.critical_max_c,
        p.max_excursion_s, p.max_humidity_pct, p.max_vib_g, p.max_shock_events, p.max_lid_open_s,
        l.recorded_at AS last_seen, l.temp_c, l.hum_pct, l.vib_g, l.moving, l.lid_open,
+       l.lat, l.lng, l.speed_kmph, l.heading_deg, l.distance_cm,
        a.n, a.min_temp, a.max_temp, a.max_hum, a.excursion_s, a.shock_events, a.lid_open_s
 FROM boxes b
 JOIN vaccine_profiles p ON p.id = b.profile_id
