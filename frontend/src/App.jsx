@@ -57,6 +57,8 @@ function BoxCard({ b, onDeliver }) {
       <Spark id={b.id} />
       <dl>
         <div><dt>Humidity</dt><dd>{f(b.hum_pct, 0)}%</dd></div>
+        <div><dt>Vibration</dt><dd>{f(b.vib_g, 2)} g</dd></div>
+        <div><dt>Tilt</dt><dd>{f(b.tilt_deg, 0)}°</dd></div>
         <div><dt>Lid</dt><dd>{b.lid_open ? 'Open' : 'Closed'}</dd></div>
         <div><dt>Motion</dt><dd>{b.moving ? 'Moving' : 'Still'}</dd></div>
         <div><dt>Speed</dt><dd>{f(b.speed_kmph, 0)} km/h</dd></div>

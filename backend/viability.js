@@ -16,6 +16,7 @@ function evaluate(r) {
     warn(`Outside safe range for ${mins(r.excursion_s)} min so far`);
   if (r.max_hum > r.max_humidity_pct) warn(`Humidity reached ${r.max_hum.toFixed(0)}%`);
   if (r.shock_events > r.max_shock_events) warn(`${r.shock_events} shocks recorded (limit ${r.max_shock_events})`);
+  if (r.tilt_events > 0) warn(`Box tipped beyond ${r.max_tilt_deg}° (${r.tilt_events} readings)`);
   if (r.lid_open_s > r.max_lid_open_s) warn(`Lid open ${r.lid_open_s}s in total (limit ${r.max_lid_open_s}s)`);
 
   const offline = r.status === 'in_transit' && Date.now() - new Date(r.last_seen) > 5 * 60 * 1000;

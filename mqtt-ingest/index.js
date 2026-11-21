@@ -26,11 +26,11 @@ function startIngest() {
         'INSERT INTO boxes (id, name) VALUES ($1, $1) ON CONFLICT (id) DO NOTHING', [boxId]);
       await pool.query(
         `INSERT INTO readings (box_id, recorded_at, temp_c, hum_pct, vib_g, moving, lid_open, interval_s, rssi,
-                               lat, lng, speed_kmph, heading_deg, distance_cm, light_raw)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+                               lat, lng, speed_kmph, heading_deg, distance_cm, light_raw, tilt_deg)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
         [boxId, when, num(d.temp_c), num(d.hum_pct), num(d.vib_g) ?? 0,
          !!d.moving, !!d.lid_open, num(d.interval_s) ?? 10, num(d.rssi),
-         num(d.lat), num(d.lng), num(d.speed_kmph), num(d.heading_deg), num(d.distance_cm), num(d.light_raw)]);
+         num(d.lat), num(d.lng), num(d.speed_kmph), num(d.heading_deg), num(d.distance_cm), num(d.light_raw), num(d.tilt_deg)]);
     } catch (e) {
       console.error('Rejected message on', topic, '-', e.message);
     }

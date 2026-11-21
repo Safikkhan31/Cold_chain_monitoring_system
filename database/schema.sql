@@ -45,6 +45,10 @@ ALTER TABLE readings ADD COLUMN IF NOT EXISTS speed_kmph   DOUBLE PRECISION;
 ALTER TABLE readings ADD COLUMN IF NOT EXISTS heading_deg  DOUBLE PRECISION;
 ALTER TABLE readings ADD COLUMN IF NOT EXISTS distance_cm  DOUBLE PRECISION;
 ALTER TABLE readings ADD COLUMN IF NOT EXISTS light_raw    INTEGER;
+ALTER TABLE readings ADD COLUMN IF NOT EXISTS tilt_deg     DOUBLE PRECISION;
+
+-- Maximum tilt of the box (degrees from upright) before it counts as tipped over
+ALTER TABLE vaccine_profiles ADD COLUMN IF NOT EXISTS max_tilt_deg DOUBLE PRECISION NOT NULL DEFAULT 45;
 
 -- Example profiles (verify against your vaccine's datasheet)
 INSERT INTO vaccine_profiles

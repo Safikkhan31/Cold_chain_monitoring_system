@@ -18,6 +18,12 @@ The ingest service and the API never call each other. They only meet in the data
 ## Deploy to AWS with Terraform and Jenkins
 The `terraform/` folder builds the whole AWS setup (VPC, ECR, RDS, servers, Jenkins). Jenkins builds the images from the `Jenkinsfile`, pushes them to ECR and updates the servers when the Git repo changes. See `terraform/README.md`.
 
+## Sample data
+The `simulator/` folder publishes MQTT readings for 20 sample boxes (BOX-002 to BOX-021). See `simulator/README.md`.
+
+## Wokwi simulation
+The `wokwi/` folder has a `diagram.json`, `sketch.ino` and `libraries.txt` for simulating a box (BOX-001) with DS18B20, DHT22, MPU6050, HC-SR04, LDR, a lid switch, an OLED and an alarm.
+
 ## Quick start with Docker (recommended for a single machine)
 Each service has its own `Dockerfile`; `docker-compose.yml` runs all five containers (Postgres, Mosquitto, mqtt-ingest, backend, frontend).
 ```bash

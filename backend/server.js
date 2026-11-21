@@ -14,10 +14,10 @@ app.use(express.json());
 const BOXES_SQL = `
 SELECT b.id, b.name, b.destination, b.status, b.dispatched_at, b.delivered_at,
        p.name AS vaccine, p.min_temp_c, p.max_temp_c, p.critical_min_c, p.critical_max_c,
-       p.max_excursion_s, p.max_humidity_pct, p.max_vib_g, p.max_shock_events, p.max_lid_open_s,
+       p.max_excursion_s, p.max_humidity_pct, p.max_vib_g, p.max_shock_events, p.max_lid_open_s, p.max_tilt_deg,
        l.recorded_at AS last_seen, l.temp_c, l.hum_pct, l.vib_g, l.moving, l.lid_open,
-       l.lat, l.lng, l.speed_kmph, l.heading_deg, l.distance_cm,
-       a.n, a.min_temp, a.max_temp, a.max_hum, a.excursion_s, a.shock_events, a.lid_open_s
+       l.lat, l.lng, l.speed_kmph, l.heading_deg, l.distance_cm, l.tilt_deg,
+       a.n, a.min_temp, a.max_temp, a.max_hum, a.excursion_s, a.shock_events, a.tilt_events, a.lid_open_s
 FROM boxes b
 JOIN vaccine_profiles p ON p.id = b.profile_id
 LEFT JOIN LATERAL (
@@ -26,6 +26,7 @@ LEFT JOIN LATERAL (
   SELECT COUNT(*)::int AS n, MIN(r.temp_c) AS min_temp, MAX(r.temp_c) AS max_temp, MAX(r.hum_pct) AS max_hum,
          COALESCE(SUM(r.interval_s) FILTER (WHERE r.temp_c < p.min_temp_c OR r.temp_c > p.max_temp_c), 0)::int AS excursion_s,
          (COUNT(*) FILTER (WHERE r.vib_g > p.max_vib_g))::int AS shock_events,
+         (COUNT(*) FILTER (WHERE r.tilt_deg > p.max_tilt_deg))::int AS tilt_events,
          COALESCE(SUM(r.interval_s) FILTER (WHERE r.lid_open), 0)::int AS lid_open_s
   FROM readings r
   WHERE r.box_id = b.id AND r.recorded_at >= b.dispatched_at
